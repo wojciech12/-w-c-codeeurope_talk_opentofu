@@ -1,0 +1,882 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+ <link rel="icon" type="image/x-icon" href="img/opentofu/favicon-32x32.png">
+
+		<title>Secure and effective GitOps and Infrastructure-as-Code with OpenTofu</title>
+
+		<!-- bootstrap -->
+		<link rel="stylesheet" href="ext/bootstrap-5.3.0-alpha3/bootstrap.min.css">
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/white.css" id="theme">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<style>
+			.reveal section img {
+				background-color:white;
+				border:0;
+				box-shadow: 0 0 0 0;
+			}
+
+			.reveal section code {
+				background-color:white;
+				border:0;
+				box-shadow: 0 0 0 0;
+			}
+
+
+			.reveal h4 {
+				text-transform: none;
+			}
+
+			.reveal h3 {
+				text-transform: none;
+			}
+
+			.reveal h2 {
+				text-transform: none;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="reveal">
+			<div class="slides">
+				<section>
+
+					<h3>Secure and effective GitOps and Infrastructure-as-Code with OpenTofu</h3>
+
+					<img width="30%" src="img/opentofu/on-light.png" />
+
+					<p><small>Wojciech Barczynski | VPE@Spacelift | TSC@OpenTofu</small></p>
+				</section>
+
+				<section>
+					<h4>Whoami</h4>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-4'>
+								<img width="60%" style="object-fit: fill;  border-radius: 10%;" src="img/me.jpg" />
+							</div>
+							<div class='col-md-8'>
+								<p><ul>
+									<li>VP of Engineering at Spacelift</li>
+									<li>Member of OpenTofu TSC</li>
+									<li>Before:<br />Director of Infra/Platform<br />&amp; Head of Engineering</li>
+								</ul></p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section>
+					<h4>Whoami</h4>
+					<div class="container">
+						<div class="row justify-content-center align-items-center">
+							<div class='col-md-8'>
+								<p><ul>
+									<li>Infrastructure orchestrator</li>
+									<li>IaC GitOps best practices</li>
+									<!-- li>100s of customers</li -->
+									<li>Founding partner and top contributor to OpenTofu</li>
+								</ul></p>
+							</div>
+							<div class='col-md-4'>
+								<img width="100%" style="object-fit: fill;  border-radius: 10%;" src="img/spacelift/logo_dark.png" />
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section>
+					<h3>What is OpenTofu?</h3>
+					<div class="container">
+						<div class="row justify-content-center align-items-center">
+							<div class='col-md-8'>
+								<p><ul>
+									<li>Community-driven Open-source Terraform fork</li>
+									<li>The Linux Foundation project</li>
+									<li>Drop-in replacement</li>
+									<li>Since September 2023</li>
+								</ul></p>
+							</div>
+							<div class='col-md-4'>
+								<img width="100%" style="object-fit: fill;  border-radius: 10%;" src="img/opentofu/on-light.png" />
+							</div>
+						</div>
+					</div>
+				</section><!-- <a href="opentofu.org/docs/intro/migration"> -->
+
+				<section data-markdown>
+					<script type="text/template">
+### What is OpenTofu?
+
+Declarative infrastructure-as-code (in Git):
+
+<pre><code data-trim data-noescape>
+variable "repository_name" {
+  type    = string
+  default = "my_app"
+}
+
+resource "github_repository" "my_repo" {
+  name        = var.repository_name
+  description = "My App repository created by OpenTofu!"
+  visibility = "public"
+}</code></pre>
+							</script>
+				</section><!-- https://opentofu.org/docs/intro/migration/ -->
+
+				<section data-markdown>
+					<script type="text/template">				
+### What is OpenTofu?
+
+1. <code>tofu plan</code> – tell me what will happen (+, -, ~),
+2. <code>tofu apply</code> – 🚀,
+3. State file – snapshot of your infra.
+ 					</script>
+				</section>  
+
+				<section data-markdown>
+					<script type="text/template">
+### What is OpenTofu?
+
+- Plan – safety and shift left X,
+- State – drift detection 🎉.
+					</script>
+				</section>
+
+				<section>
+					<h3>What is OpenTofu?</h3>
+					<div class="container">
+						<div class="row justify-content-center align-items-center">
+							<div class='col-md-6'>
+								<p><ul>
+									<li>Common language*</li>
+									<li>For your cloud, tools, to your software</li>
+									<li>Easy to extend (modules, providers, and functions)</li>
+								</ul></p>
+							</div>
+							<div class='col-md-6'>
+								<img width="100%" style="object-fit: fill;  border-radius: 10%;" src="img/babel-fish-3-2317559640.jpg" />
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- section data-background="img/lingua_franca.png" data-background-repeat="" data-background-size="100%">
+				</section -->
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### IaC Projec
+|                | Description                  | +                 | -      |
+| ---------------| ---------------------------- | ----------------- | ------ |
+| `data`         | read from resources          | Easy to implement | Slow   |
+| **key/value**; | my default                   | Fast              | C. Deps. |
+| O(T)ACOS env vars | k/v overlay<br/>[Spacelift context](https://docs.spacelift.io/concepts/configuration/context) | Reusablity | Tracing cycles |
+| Graph<br/>/workflow | [Spacelift Dependencies](https://docs.spacelift.io/concepts/stack/stack-dependencies) | Visible dependencies| Not standard | 
+					</script>
+			</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### Infrastructure-as-code projects
+
+Use cases:
+
+<ol start="1">
+  <li>Security &amp; control</li>
+	<li>Increase the velocity</li>
+	<li>Reduce cost</li>
+	<li>Collaboration</li>
+</ol>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### Infrastructure-as-code projects
+
+Use cases:
+
+<ol start="5">
+	<li>Scaling up</li>
+	<li>Standarization</li>
+	<li>Opening up IaC* and democratization</li>
+	<li>Internal platforms</li>
+</ol>
+					</script>
+				</section>
+
+<!-- 
+1. Bringing resources under control
+2. Software Engineering best practices (GitOps)
+3. Collaboration
+4. Security
+1. Streamling your infra changes
+2. Collaboration
+3. Democratisation
+Beginnings:
+
+1. Bringing resources under control
+2. Software Engineering best practices (GitOps)
+3. Collaboration
+					 -->
+
+
+<!-- 3. Deploy with confidence  -->
+
+				<!-- 
+				-->
+				<!-- section>
+					<h4>Benefits of IaC</h4>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-6'>
+								<p><ul>
+									<li>Dev best practices</li>
+									<li>Control</li>
+									<li>Security</li>
+									<li>Standardization</li>
+								</ul></p>
+							</div>
+							<div class='col-md-6'>
+								<p><ul>
+									<li>Collaboration</li>
+									<li>Scaling up &amp; velocity</li>
+									<li>Cost management</li>
+								</ul></p>
+							</div>
+						</div>
+					</div>
+				</section -->
+
+				<section>
+					<h4>Pitfalls ⚠️</h4>
+
+					<div class="container">
+						<div class="row">
+							<div class='col-md-12'>
+								<p><ul>
+									<li>(Remote) state management</li>
+									<li>Large stacks &amp; rigid infrastructure</li>
+									<li>Running OpenTofu from your machine (Yolo)</li>
+									<!-- li>No GitOps</li -->
+									<li>Reusable modules</li><!-- too opinionated and lack of tests -->
+								</ul></p>
+							</div>
+						</div>
+					</div>
+				</section><!-- 💀 -->
+
+				<section>
+					<h4>Pitfalls ⚠️</h4>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-12'>
+								<p><ul>
+									<li>Not addressing the drift</li>
+									<li>Reviewing every single chance</li> <!-- No policies &amp; guardrails -->
+									<li>Inconsistencies across stacks</li>
+									<li>Outgrowing your tooling</li>
+								</ul></p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### IaC in your company
+
+Ultimate goal in mind, our north star:
+
+- Engage other groups of engineers;
+- Everybody should have access to IaC and contribute;
+- Empower - IaC is close to the product teams.
+					</script>
+				</section -->
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### Infrastructure-as-Code
+
+Early mistakes will lead to difficulties later.
+					</script>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### 1. State management
+
+Basics:
+
+- Remote with locks;
+- (Encrypted) objects storage: [AWS](), [GCP](), and [Azure](https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage);
+- O(T)ACOS, for example, [Spacelift](https://docs.spacelift.io/vendors/terraform/state-management), [Env0](), or [Scalr]().
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 1. State management
+
+Client-side encryption ([OpenTofu docs](https://opentofu.org/docs/language/state/encryption/)):
+
+<pre><code data-trim data-noescape class="tf">terraform{
+  state_encryption {
+    statefile {
+      key_provider {
+       
+      }
+      method {
+       
+      }
+      enforced = true
+    }
+ }</code></pre>
+					</script>
+				</section><!-- small>Turn on the encryption: server-side or client-side with <a href="https://www.youtube.com/watch?v=rR4IbhlRSkI">opentofu 1.7.x</a></small -->
+
+				<section data-markdown>
+					<script type="text/template">
+### 1. State management
+
+Client-side encryption ([OpenTofu docs](https://opentofu.org/docs/language/state/encryption/)):
+
+- encryption passphrase,
+- key management system support such as AWS KMS, GCP KMS, or OpenBao.
+					</script>
+				</section>
+
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### 1. State management
+
+Remember the basics, do not leak your state:
+
+- <code>.gitignore</code>
+- <code>.dockerignore</code>
+					</script>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### 2. Large state
+
+- Slow plan,
+- Slow apply,
+- Unhappy users,
+- Leads to the rigid infrastructure 💀.
+					</script>
+				</section>
+<!-- 
+- Smallest that makes sense, e.g., per component;
+- You SHOULD not read state files of other workspaces/stacks;
+ -->
+
+				<section data-markdown>
+					<script type="text/template">
+### 2. Rigid infrastructure
+
+- Hard dependencies between workspaces/stacks;
+- You need to be a super admin;
+- Circular dependencies;
+- Too opinioned modules from the start.
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 2. Rigid infrastructure
+
+- <code>terragrunt run-all</code>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 2. Rigid infrastructure
+
+- makes it share the ownership,
+- halts democratization,
+- increases the risk of change.
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 2. Panacea
+
+- Break your stack into smaller ones
+- and connect them with...
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 2. Panacea
+|                | Description                  | +                 | -      |
+| ---------------| ---------------------------- | ----------------- | ------ |
+| `data`         | read from resources          | Easy to implement | Slow   |
+| **key/value**; | my default                   | Fast              | C. Deps. |
+| O(T)ACOS env vars | k/v overlay<br/>[Context](https://docs.spacelift.io/concepts/configuration/context) | Reusablity | Tracing cycles |
+| Graph<br/>/workflow | [Spacelift Dependencies](https://docs.spacelift.io/concepts/stack/stack-dependencies) | Visible dependencies| Not standard | 
+					</script>
+			</section>
+
+
+			<section>
+					<h4>3. Running IaC from your laptop</h4>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-6'>
+								<p><img width="80%" src="https://pbs.twimg.com/media/FQyZY06WQAQD5iW?format=png" />
+									<small><a href="twitter.com/mtcderek" style="color:black;">https://twitter.com/mtcderek</a></small></p>
+							</div>
+							<div class='col-md-5'>
+								<p>
+								<br />
+								<ul>
+									<li>Uff, luckily it was my test env</li>
+									<li>...</li>
+									<li>...</li>
+									<li>🚨</li>
+								</ul></p>
+								<br />
+							<br />
+						</div>
+					</div>
+				</div>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+<h4>3. Running IaC from your laptop</h4>
+Options depending on the IaC maturity:
+
+- Generic CI/CD, e.g., [OpenTofu GitHub action](https://github.com/marketplace/actions/opentofu-setup-tofu);
+- Atlantis (open source);
+- O(T)ACOS.
+				</script>
+			</section>
+
+			<section data-markdown>
+					<script type="text/template">
+### 3. Shift-left X
+
+1. <code>tofu plan</code> - you can validate the changes before apply.
+
+2. shift-left X, where X  = best practises, security, and policies.
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 3. Shift-left X
+
+In your CI/CD or git .pre-commit:
+
+- Linters: `tofu fmt` & `tflint`;
+- Security: `tfsec`, `kics`, or `checkov`;
+- Cost estimation: `tf-cost-estimation` & `infracost`.
+					</script>
+				</section>
+
+<!-- 
+				<section data-markdown>
+					<script type="text/template">
+### 8/10: Democratization
+
+Benefits:
+
+- The opening of IaC will change the dynamics between DevOps and developers;
+- Encourage ownership and improve communication;
+- Much less finger pointing and leaner IaC.
+					</script>
+				</section> -->
+
+<!--				2. For the IaC democratization & team empowerment<br />GitOps & Continuous Deployment is a MUST; -->
+
+			<!-- 	<section data-markdown>
+					<script type="text/template">
+### 8/10: Democratization
+
+This does not mean all engineers will suddenly create infrastructure themself.
+					</script>
+				</section> -->
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### 9/10: Scaling
+
+1. Streamline the chanages;
+2. Sharig best practices;
+3. Governance and security.
+					</script>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### 4. Reusable Modules
+
+1. Similar to internal application libraries,
+2. We want to help..., 
+3. Too opinioned modules too early,
+4. Lack of module test cases.
+					</script>
+				</section>
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### 5. Reusable Modules
+
+1. Too opinioned modules too early,
+2. Start small,
+3. Lack of module test cases slows IaC adaption.
+					</script>
+				</section -->
+
+				<section data-markdown>
+					<script type="text/template">
+### 5. Reusable Providers
+
+Provider-defined functions ([go](https://github.com/Yantrio/terraform-provider-helpers/blob/main/internal/provider/echo_function.go)):
+
+<pre><code data-trim data-noescape class="tf">
+terraform {
+  required_providers {
+    myhelper = {
+      # yantrio/helpers registers a function named "echo"
+      source = "yantrio/helpers"
+    }
+  }
+}
+
+locals {
+  myval = provider::myhelper::echo("Hello Functions!")
+}
+</pre></code>
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 5. Reusable Providers
+
+Two experimentals providers available:
+
+- [terraform-provider-lua](https://github.com/opentofu/terraform-provider-lua)
+- [terraform-provider-go](https://github.com/opentofu/terraform-provider-go)
+
+A powerful that lets you use the general purpose languages.
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 5. Not addressing the drift
+
+- Thread to your control and security,
+- Not only clickups,
+- Only matter of time.
+					</script>
+				</section>
+
+				<section>
+					<h3>6. Drift detection</h3>
+					<div class="container">
+						<div class="row justify-content-center align-items-center">
+							<div class='col-md-6'>
+								<p><ul>
+									<li>Catch ClickOps;</li>
+									<li>Overlapping IaC configurations;</li>
+									<li>Must for the security and control.</li>
+								</ul></p>
+							</div>
+							<div class='col-md-6'>
+								<img width="100%" style="object-fit: fill;  border-radius: 10%;" src="https://docs.spacelift.io/assets/screenshots/Screenshot%202022-08-08%20at%2009-43-02%20Settings%20%C2%B7%20Test.png" />
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 6. Drift detection
+
+- Ensure your rarely touched project, still works;
+- Clean up after incidents;
+- Track a migration from ClickOps to IaC.
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 7. Reviewing every single chance
+
+- Bringing your best engineers to review every change is not effective;
+- You just move a bottleneck somethere else.
+					</script>
+				</section>
+
+				<section>
+					<h3>7. Policies and Guardrails</h3>
+					<div class="container">
+						<div class="row justify-content-center align-items-center">
+							<div class='col-md-9'>
+								<p>
+Policies with <a href="https://github.com/open-policy-agent/conftest/tree/master/examples/hcl2">conftest</a> and <a href="https://www.openpolicyagent.org/">Rego</a>:
+									<ul>
+									<li><a href="https://github.com/cloudposse/terraform-spacelift-cloud-infrastructure-automation/blob/main/catalog/policies/plan.warn-on-deletions-and-recreations.rego">Warning on deletion or recreation</a></li>
+									<li><a href="https://github.com/spacelift-io/spacelift-policies-example-library/blob/main/plan/enforce-tags-on-resources.rego">Enforce tagging</a></li>
+									<li><a href="https://github.com/spacelift-io/spacelift-policies-example-library/blob/main/plan/check-blast-radius.rego">Reduce blast radius</a></li>
+									<li>Based on 3rd party tools, e.g., <a href="https://github.com/spacelift-io/spacelift-policies-example-library/blob/main/plan/tfsec-high-severity-issues.rego">tfsec</a> or <a href="https://github.com/spacelift-io/spacelift-policies-example-library/blob/main/plan/check-blast-radius.rego">checkov</a>.</li>
+									<!-- li>Prevent expensive resource configurations.</li -->
+								</ul></p>
+							</div>
+							<div class='col-md-3'>
+								<img width="100%" style="object-fit: fill;  border-radius: 10%;" src="img/openpolicyagent/logo.webp" />
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 7. Decision automation
+
+Approval policies (from [library](https://github.com/spacelift-io/spacelift-policies-example-library/blob/main/approval/require-approval-from-security-team.rego)):
+
+<pre><code data-trim data-noescape class="tf">
+approval_list := [
+  "aws_iam_access_key",
+  "aws_security_group"]
+
+...
+
+approve {
+  security_approval
+  count(input.reviews.current.approvals) > 0
+}
+</code></pre>
+					</script>
+				</section>
+
+<!-- 				<section data-markdown>
+					<script type="text/template">
+### 8/10: Democratization
+
+Right tooling:
+
+- A platform that uses Infrastructure Orchestrator (APIs of TACOS) and other tools under hood.
+					</script>
+				</section> -->
+
+				<!-- section data-markdown>
+					<script type="text/template">
+### 9/10: Scaling
+
+Governance and security.
+
+- Testing of common code;
+- Enforcing module updates;
+- Enforcing policies;
+- Security and lintering tools;
+- **Drift**.
+					</script>
+				</section -->
+
+				<section>
+					<h3>8. Inconsistencies across stacks</h3>
+					<div class="container">
+						<div class="row justify-content-center align-items-center">
+							<div class='col-md-6'>
+								<p><ul>
+									<li>Model the deps in your pipeline;</li>
+									<li>Drift detection;</li>
+									<li>terragrunt;</li>
+									<li>TACOS.</li>
+								</ul></p>
+							</div>
+							<div class='col-md-6'>
+								<img width="100%" style="object-fit: fill;  border-radius: 10%;" src="img/spacelift/stack_dependencies.jpeg" />
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 9. Outgrowing your tooling
+
+1. Local execution;
+2. Basic automation with generic CI/CD;
+3. GitOps;
+4. Decision automation;
+5. Platforms and API-based workflows.
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### 9. Outgrowing your tooling
+
+Common pattern:
+
+- Take a simple CI/CD tool;
+- Extend it to bring advanced capabilities;
+- Keep investing even if bringing new features takes ages.
+					</script>
+				</section>
+
+
+				<section data-markdown>
+					<script type="text/template">
+### Security - Bonus
+
+Do you know that nothing prevents <code>tofu plan</code> to apply changes?
+
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### Security - Bonus
+
+Do you know that nothing prevents <code>tofu plan</code> to apply changes?
+
+Solution: read-only role for plans and write role for applies.
+					</script>
+				</section>
+
+<!-- 				<section data-markdown>
+					<script type="text/template">
+### Security
+
+- Temporary credentials
+- OpenID Connect
+					</script>
+				</section>
+ -->
+				<section data-markdown>
+					<script type="text/template">
+### Summary
+
+- Well executed IaC projects benefits both engineering and business;
+- Assume you will open your OpenTofu IaC to others;
+- Leverage the rich OpenTofu and Terraform ecosystem.
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### Summary
+
+OpenTofu:
+
+- State encryption;
+- Provider-defined functions in Lua and Golang;
+- Coming in 1.8.x: variables evaluation prior to module configuration.
+
+It is a community-driven project, join the slack, give feedback and share your ideas.
+					</script>
+			</section>
+
+				<section>
+					<div class="container">
+						<div class="row">
+							<div class='col-md-6'>
+								<img width="100%" style="object-fit: fill;" src="img/analogia_frigate_pallada.jpg" />
+								<!-- https://www.flickr.com/photos/mustadmarine/49842649546/ -->
+							</div>
+							<div class='col-md-6'>
+								<h3>Questions?</h3>
+								<br />
+								<br />
+								<p><small><a href="https://github.com/wojciech12/talks">github.com/wojciech12/talks</a></small></p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+			<section data-markdown>
+				<script type="text/template">
+#### Backup Slides
+
+<!-- img width="70%" src="img/Rubber_Duck_Sea_by_whispering_hills_1000_673_84_c1.jpg" -->
+				</script>
+			</section>
+
+<section data-background="img/books.png" data-background-repeat="" data-background-size="100%">
+				</section>
+
+
+				<section data-markdown>
+					<script type="text/template">
+### Rabbit holes everywhere...
+
+Approach:
+
+- The iteration, decision, and deliver;
+- As soon as possible to get into the cycle Patch Patch Patch.
+
+Alternative take:
+
+- [Tracer bullet development](https://wiki.c2.com/?TracerBullets);
+- [Lean v1/v2](https://katemats.com/blog/lean-software-development-build-v1s-and-v2s
+).
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+### OODA
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/OODA.Boyd.svg" />
+					</script>
+				</section>
+
+			</div>
+		</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/zoom/zoom.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/search/search.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+
+			// Also available as an ES module, see:
+			// https://revealjs.com/initialization/
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				center: true,
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
+			});
+
+		</script>
+
+	</body>
+</html>
